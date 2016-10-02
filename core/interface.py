@@ -65,11 +65,13 @@ class Processor(object):
 			while 1:
 				completer = Completer("pythem")
 				console = termcolor.colored("pythem>","red", attrs=["bold"])
+				# 得到输入在pythem的命令
 				self.command = raw_input("{} ".format(console))
+				# split()用指定的分隔符来切分字符串成一个列表，这里是将命令通过『空格』拆分成若干参数
 				self.argv = self.command.split()
 				self.input_list = [str(a) for a in self.argv]
 				try:
-
+					# 如果第一个命令是`help`
 					if self.input_list[0] == "help":
 						print_help()
 
@@ -147,7 +149,7 @@ class Processor(object):
 						else:
 							exit()
 
-					
+					# 这里因为set命令很常用，于是让set可以大小写通用
 					elif self.input_list[0] == "set" or self.input_list[0] == "SET":
 						if self.input_list[1] == "interface":
 							try:
@@ -203,11 +205,15 @@ class Processor(object):
 								except KeyboardInterrupt:
 									pass
 						elif self.input_list[1] == "target":
+							# 这里先用try一下来得到第三个参数(`set target xxx`)
+							
 							try:
 								self.targets = self.input_list[2]
+							# 如果没有则进入异常处理中，提示输入target，然后将得到的值给targets。
 							except IndexError:
 								try:
 									self.targets = raw_input("[+] Enter the target(s): ")
+									# 这里是直接把输入了字符串给self.targets了。
 								except KeyboardInterrupt:
 									pass
 						elif self.input_list[1] == "file":
@@ -552,6 +558,7 @@ class Processor(object):
 							from modules.geoip import Geoip
 							path = "config/GeoLiteCity.dat"
 							iptracker = Geoip(self.targets,path)
+							# 这句话应该放在try的最下面。如果放在前面则其后的语句无法执行。
 
 						except IndexError:
 							if self.targets is not None:
@@ -569,7 +576,9 @@ class Processor(object):
 							if self.input_list[1] == "ssh":
 								try:
 									username = raw_input("[+] Enter the username to bruteforce: ")
+									# 到了点才import，不要开始就import，不然没有用到岂不是浪费了
 									from modules.ssh_bruter import SSHbrutus
+									# 向`SSHbrutus`的构造器传入目标IP，用户名(从刚才的输入得到)，还有爆破了字典文件
 									brutus = SSHbrutus(self.targets, username, self.file)
 									brutus.start()
                                                 		except KeyboardInterrupt:
@@ -605,6 +614,7 @@ class Processor(object):
 							else:
 								print "[!] Select a valid type of brute-force type help to check."
 					else:
+					# 如果不是前面那些if，表示前面给出的可能都不满足，则直接用操作系统执行这条命令
 						try:
 							os.system("{}".format(self.command))
 							pass
